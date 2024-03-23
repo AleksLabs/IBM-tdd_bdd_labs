@@ -12,6 +12,7 @@ import factory
 from datetime import date
 from factory.fuzzy import FuzzyChoice, FuzzyDate
 from models.account import Account
+from factory import Faker
 
 class AccountFactory(factory.Factory):
     """ Creates fake Accounts """
@@ -20,3 +21,9 @@ class AccountFactory(factory.Factory):
         model = Account
 
     # Add attributes here...
+    id = factory.Sequence(lambda n: n)
+    name = Faker("name")
+    email = Faker("email")
+    phone_number = Faker("phone_number")
+    disabled = FuzzyChoice(choices=[True, False])
+    date_joined = FuzzyDate(date(2008, 1, 1))

@@ -52,4 +52,68 @@ class TestAccountModel(TestCase):
         account = Account(**data)
         account.create()
         self.assertEqual(len(Account.all()), 1)
+        
+    def test_repr(self):
+        """ Test __repr__ method"""
+        data = ACCOUNT_DATA[self.rand] # get a random account
+        account = Account(**data)
+        account.name = "Foo"
+        self.assertEqual(str(account), "<Account 'Foo'>")
+    
+    def test_to_dict(self):
+        """ Test Serializing the class as a dictionary"""
+        data = ACCOUNT_DATA[self.rand] # get a random account
+        account = Account(**data)
+        account.create()
+        self.assertEqual(account.to_dict(), {
+            "id": account.id,
+            "name": account.name,
+            "email": account.email,
+            "phone_number": account.phone_number,
+            "disabled": account.disabled,
+            "date_joined": account.date_joined
+            })
+        
+    def test_from_dict(self):
+        """ Test Setting attributes from a dictionary"""
+        data = {
+        "name": "Jennifer Smith",
+        "email": "stevensjennifer@example.org",
+        "phone_number": "351.317.1639x79470",
+        "disabled": True
+        }   
+        account = Account()
+        account.from_dict(data)
+        self.assertEqual(account.name, "Jennifer Smith")
+        self.assertEqual(account.email, "stevensjennifer@example.org")
+        self.assertEqual(account.phone_number, "351.317.1639x79470")
+        self.assertEqual(account.disabled, True)
 
+    def test_update(self):
+        """ Test Updating an Account in the database"""
+        data = ACCOUNT_DATA[self.rand] # get a random account
+        account = Account(**data)
+        account.create()
+        account = Account.find(1)
+        account.name = "Foo"
+        account.update()
+        account = Account.find(1)
+        self.assertEqual(account.name, "Foo")
+
+    def test_delete(self):
+        """ Test deleting an Account in the database"""
+        data = ACCOUNT_DATA[self.rand] # get a random account
+        account = Account(**data)
+        account.create()
+        account = Account.find(1)
+        account.delete()
+        self.assertEqual(len(Account.all()), 0)
+
+    def test_update_no_id_error(self):
+        """ Test raising DataValidationError"""
+        data = ACCOUNT_DATA[self.rand] # get a random account
+        account = Account(**data)
+        account.create()
+        account = Account.find(1)
+        account.id = None
+        self.assertRaises(DataValidationError, account.update)
